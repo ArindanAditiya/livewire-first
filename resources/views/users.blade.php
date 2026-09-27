@@ -11,7 +11,6 @@
         @livewireStyles
     </head>
     <body>
-        {{-- @livewire("users") --}}
         <livewire:users/>
     </body>
 </html>
