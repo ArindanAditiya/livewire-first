@@ -1,83 +1,337 @@
-<div class="w-1/2 m-auto my-10">
-    <h1 class="text-3xl font-bold">{{ $title }}</h1>
-    <h1 class="text-xl">Jumlah user sejumlah : {{ count($users) }}</h1>
+<div class="w-11/12 max-w-7xl mx-auto my-10 md:my-16">
 
-    <button wire:click="createRandomUser" type="button"
-        class="text-white bg-teal-800 hover:bg-teal-900 p-2 font-bold cursor-pointer mb-3">
-        Tambahin User Random
-    </button>
-    <button wire:click="clearUser" type="button"
-        class="text-white bg-red-800 hover:bg-red-900 p-2 font-bold cursor-pointer mb-3">
-        Bersihin
-    </button>
+    {{-- HEADER --}}
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-800">
+            {{ $title }}
+        </h1>
 
-    <div>
-        {{-- Form tambah user dalam satu row --}}
-        <form wire:submit="addNewUser" class="flex flex-row gap-2 items-start mb-4">
-
-            {{-- NAME --}}
-            <div class="flex-1">
-                <input
-                    wire:model="name"
-                    type="text"
-                    placeholder="Name"
-                    class="w-full border p-2 rounded"
-                >
-                @error('name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-            </div>
-
-            {{-- EMAIL --}}
-            <div class="flex-1">
-                <input
-                    wire:model="email"
-                    type="email"
-                    placeholder="Email"
-                    class="w-full border p-2 rounded"
-                >
-                @error('email') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-            </div>
-
-            {{-- PASSWORD --}}
-            <div class="flex-1">
-                <div class="relative" x-data="{ show: false }">
-                    <input
-                        wire:model="password"
-                        :type="show ? 'text' : 'password'"
-                        placeholder="Password"
-                        class="w-full border p-2 pr-10 rounded"
-                    >
-                    <button
-                        type="button"
-                        @click="show = !show"
-                        class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-600 hover:text-gray-900 cursor-pointer"
-                    >
-                        <i :class="show ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash'"></i>
-                    </button>
-                </div>
-                @error('password') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-            </div>
-
-            <button
-                type="submit"
-                class="text-white bg-teal-700 hover:bg-teal-800 p-2 font-bold cursor-pointer"
-            >
-                Tambah
-            </button>
-        </form>
+        <p class="text-sm text-gray-500 mt-1">
+            Jumlah user: {{ count($users) }}
+        </p>
     </div>
 
-    <hr>
+    <div class="flex flex-col lg:flex-row gap-8 lg:gap-10">
 
-    <h1 class="text-xl font-bold">User List</h1>
-    <ul class="list-disc">
-        @foreach ($users as $user)
-            <li class="mb-1">
-                <button wire:click="deleteUser({{ $user->id }})"
-                    class="p-0.1 border cursor-pointer">
-                    hapus
+        {{-- =========================
+            LEFT : CREATE USER
+        ========================== --}}
+        <div class="bg-white border border-gray-200 rounded-xl p-5 md:p-6 shadow-sm w-full lg:w-1/2 h-fit">
+
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+                <h2 class="text-xl font-bold text-gray-800">
+                    Tambah User
+                </h2>
+
+                <div class="flex flex-wrap gap-2">
+
+                    {{-- RANDOM USER --}}
+                    <button
+                        wire:click="createRandomUser"
+                        type="button"
+                        class="text-white bg-teal-800 hover:bg-teal-900 py-2 px-3 rounded text-sm font-bold cursor-pointer transition flex gap-2 items-center justify-center"
+                    >
+                        <span
+                            wire:loading
+                            wire:target="createRandomUser"
+                            class="inline-block size-4 border-l-indigo-500 border-b-indigo-500 border-2 rounded-full animate-spin"
+                        ></span>
+
+                        <span>Random</span>
+                    </button>
+
+                    {{-- CLEAR --}}
+                    <button
+                        wire:click="clearUser"
+                        type="button"
+                        class="text-white bg-red-800 hover:bg-red-900 py-2 px-3 rounded text-sm font-bold cursor-pointer transition flex gap-2 items-center justify-center"
+                    >
+                        <span
+                            wire:loading
+                            wire:target="clearUser"
+                            class="inline-block size-4 border-l-indigo-500 border-b-indigo-500 border-2 rounded-full animate-spin"
+                        ></span>
+
+                        <span>Bersihin</span>
+                    </button>
+
+                </div>
+            </div>
+
+            {{-- FLASH MESSAGE --}}
+           @if (session('success'))
+                <div
+                    x-data="{ show: true }"
+                    x-show="show"
+                    wire:key="success-{{ now()->timestamp }}"
+                    class="flex items-center gap-3 p-3 mb-5 bg-teal-50 border border-teal-200 text-teal-800 rounded-lg text-sm"
+                >
+                    <p class="flex-1">
+                        {{ session('success') }}
+                    </p>
+
+                    <button
+                        @click="show = false"
+                        type="button"
+                        class="text-teal-600 hover:text-teal-800 cursor-pointer transition"
+                    >
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            @endif
+
+            {{-- FORM --}}
+            <form wire:submit="addNewUser" class="space-y-5">
+                
+                {{-- AVATAR --}}
+                <div class="flex items-center gap-4">
+                    <label for="avatar" class="cursor-pointer group shrink-0 relative">
+                        @if ($avatar)
+                            <button
+                                wire:click="resetPreviewAvatar"
+                                type="button"
+                                class="text-white bg-red-400 hover:bg-red-600 size-5 rounded-full text-xs cursor-pointer transition absolute right-0 top-0"
+                                >
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        @endif
+
+                        <div class="w-24 h-24 md:w-28 md:h-28 rounded-full border-2 border-dashed border-gray-300 group-hover:border-teal-600 flex items-center justify-center overflow-hidden bg-gray-50 transition">
+
+                            @if ($avatar)
+                                <img
+                                    class="h-full w-full object-cover"
+                                    src="{{ $avatar->temporaryUrl() }}"
+                                    alt="Preview avatar"
+                                >
+                            @else
+                                <svg
+                                    class="w-7 h-7 text-gray-400"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke="currentColor"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M15 17h3a3 3 0 0 0 0-6h-.025a5.56 5.56 0 0 0 .025-.5A5.5 5.5 0 0 0 7.207 9.021C7.137 9.017 7.071 9 7 9a4 4 0 1 0 0 8h2.167M12 19v-9m0 0-2 2m2-2 2 2"
+                                    />
+                                </svg>
+                            @endif
+
+                        </div>
+
+                        <input
+                            id="avatar"
+                            type="file"
+                            wire:model="avatar"
+                            accept="image/png, image/jpeg, image/jpg"
+                            class="hidden"
+                        >
+                    </label>
+
+                    <div class="text-sm">
+                        <p class="font-medium text-gray-700">
+                            Foto Avatar
+                        </p>
+
+                        <p class="text-xs text-gray-500 mt-1">
+                            PNG, JPG (Maks. 5MB)
+                        </p>
+
+                        @error('avatar')
+                            <span class="text-red-500 text-xs">
+                                {{ $message }}
+                            </span>
+                        @enderror
+                    </div>
+
+                </div>
+
+                {{-- NAME --}}
+                <div>
+                    <input
+                        wire:model="name"
+                        type="text"
+                        placeholder="Nama"
+                        class="w-full border border-gray-300 p-2.5 rounded-lg text-sm focus:outline-none focus:border-teal-600 focus:ring-1 focus:ring-teal-600"
+                    >
+
+                    @error('name')
+                        <span class="text-red-500 text-xs">
+                            {{ $message }}
+                        </span>
+                    @enderror
+                </div>
+
+                {{-- EMAIL --}}
+                <div>
+                    <input
+                        wire:model="email"
+                        type="email"
+                        placeholder="Email"
+                        class="w-full border border-gray-300 p-2.5 rounded-lg text-sm focus:outline-none focus:border-teal-600 focus:ring-1 focus:ring-teal-600"
+                    >
+
+                    @error('email')
+                        <span class="text-red-500 text-xs">
+                            {{ $message }}
+                        </span>
+                    @enderror
+                </div>
+
+                {{-- PASSWORD --}}
+                <div x-data="{ show: false }">
+
+                    <div class="relative">
+
+                        <input
+                            wire:model="password"
+                            x-bind:type="show ? 'text' : 'password'"
+                            placeholder="Password"
+                            class="w-full border border-gray-300 p-2.5 pr-11 rounded-lg text-sm focus:outline-none focus:border-teal-600 focus:ring-1 focus:ring-teal-600"
+                        >
+
+                        <button
+                            type="button"
+                            @click="show = !show"
+                            class="absolute inset-y-0 right-0 px-3 text-gray-500 hover:text-gray-700 cursor-pointer"
+                        >
+                            <i :class="show ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash'"></i>
+                        </button>
+
+                    </div>
+
+                    @error('password')
+                        <span class="text-red-500 text-xs">
+                            {{ $message }}
+                        </span>
+                    @enderror
+
+                </div>
+
+                {{-- SUBMIT --}}
+                <button
+                    type="submit"
+                    class="w-full text-white bg-teal-700 hover:bg-teal-800 px-4 py-2.5 rounded-lg text-sm font-semibold cursor-pointer transition flex gap-2 items-center justify-center"
+                >
+                    <span
+                        wire:loading
+                        wire:target="addNewUser"
+                        class="inline-block size-4 border-l-white border-b-white border-2 rounded-full animate-spin"
+                    ></span>
+
+                    <span>Tambah User</span>
                 </button>
-                <b>{{ $user->name }}</b> {{ $user->email }}
-            </li>
-        @endforeach
-    </ul>
+
+            </form>
+
+        </div>
+
+
+        {{-- =========================
+            RIGHT : USER LIST
+        ========================== --}}
+        <div class="bg-white border border-gray-200 rounded-xl p-5 md:p-6 shadow-sm w-full lg:w-1/2">
+
+            {{-- HEADER --}}
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">
+                        User List
+                    </h2>
+
+                    <p class="text-sm text-gray-500">
+                        {{ count($users) }} user ditemukan
+                    </p>
+                </div>
+
+                {{-- SEARCH --}}
+                <div class="relative w-full sm:w-64">
+
+                    <input
+                        wire:model.live.debounce.300ms="search"
+                        type="text"
+                        placeholder="Cari user..."
+                        class="w-full border border-gray-300 rounded-lg py-2 pl-9 pr-3 text-sm focus:outline-none focus:border-teal-600 focus:ring-1 focus:ring-teal-600"
+                    >
+
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+
+                </div>
+
+            </div>
+
+            {{-- USER LIST --}}
+            <div class="space-y-3">
+
+                @forelse ($users as $user)
+
+                    <div
+                        wire:key="user-{{ $user->id }}"
+                        class="flex items-center gap-3 p-3 border border-gray-100 rounded-lg hover:border-teal-200 hover:bg-gray-50 transition"
+                    >
+
+                        {{-- AVATAR --}}
+                        <img
+                            src="{{ $user->avatar ?? asset('img/default-avatar.jpg') }}"
+                            alt="{{ $user->name }}"
+                            class="w-11 h-11 rounded-full object-cover border-2 border-teal-500 shrink-0"
+                        >
+
+                        {{-- DATA --}}
+                        <div class="flex-1 min-w-0">
+
+                            <p class="font-semibold text-gray-800 truncate">
+                                {{ $user->name }}
+                            </p>
+
+                            <p class="text-sm text-gray-500 truncate">
+                                {{ $user->email }}
+                            </p>
+
+                        </div>
+
+                        {{-- DELETE --}}
+                        <button
+                            wire:click="deleteUser({{ $user->id }})"
+                            type="button"
+                            class="shrink-0 text-white bg-red-700 hover:bg-red-800 px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition flex gap-1 items-center justify-center"
+                        >
+                            <span
+                                wire:loading
+                                wire:target="deleteUser({{ $user->id }})"
+                                class="inline-block size-3 border-l-white border-b-white border-2 rounded-full animate-spin"
+                            ></span>
+
+                            <span class="hidden sm:block">
+                                Hapus
+                            </span>
+
+                            <i class="fa-solid fa-trash sm:hidden"></i>
+                        </button>
+
+                    </div>
+
+                @empty
+
+                    <div class="text-center py-10 text-gray-400">
+                        <i class="fa-solid fa-users text-3xl mb-3"></i>
+
+                        <p class="text-sm">
+                            User tidak ditemukan.
+                        </p>
+                    </div>
+
+                @endforelse
+
+            </div>
+
+        </div>
+
+    </div>
+
 </div>
