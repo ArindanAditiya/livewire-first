@@ -28,10 +28,10 @@
             </div>
 
             {{-- USER LIST --}}
-            {{ $users->links() }}
+            {{ $this->users->links() }}
             <div class="space-y-3 my-3">
 
-                @forelse ($users as $user)
+                @forelse ($this->users as $user)
 
                     <div
                         wire:key="user-{{ $user->id }}"
@@ -92,5 +92,5 @@
                 @endforelse
 
             </div>
-            {{ $users->links() }}
+            {{ $this->users->links() }}
         </div>

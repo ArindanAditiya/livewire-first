@@ -1,103 +1,17 @@
 <?php
 
-namespace App\Livewire; 
+namespace App\Livewire;
 
-use App\Models\User;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
-use Livewire\Attributes\Computed;
-use Livewire\Attributes\Validate;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
-use Livewire\WithFileUploads;
-use Livewire\WithoutUrlPagination;
-use Livewire\WithPagination;
 
+#[Layout("components.layouts.myapp")] // kalau mau costume layout, untuk default pake app
+// kalau misalnya nnti mau ganti yang defaultnya apa bisa di /config/livewire.php tapi diinport dulu dari vedor lewat terminal
 class Users extends Component
 {
-    public $query = "";
-
-    use WithFileUploads, WithPagination, WithoutUrlPagination;
-
-    // validasi cara baru
-    #[Validate("required|min:3")]
-    public $name = "";
-    #[Validate("required|email:dns|unique:users,email")]
-    public $email = "";
-    #[Validate("required|min:3")]
-    public $password = "";
-    #[Validate("image|max:5000")]
-    public $avatar = "";
-
-    
-    public function addNewUser()
-    {
-        // lanjutan dari cara baru
-        $validated = $this->validate();
-
-        if($this->avatar){
-            $validated["avatar"] = $this->avatar->store("avatar", "public");
-        } else {
-            $validated["avatar"] = null;
-        }
-
-        User::create([
-            "avatar" => $validated["avatar"],
-            'name' => $this->name,
-            'email' => $this->email,
-            'email_verified_at' => now(),
-            'password' => Hash::make($this->password),
-            'remember_token' => Str::random(10),
-        ]);
-
-        $this->reset();
-
-        session()->flash("success", "User has been created");
-    }
-
-    public function updatedQuery()
-    {
-        $this->resetPage();
-        }
-        
-    public function searchUser(){
-        $this->resetPage();
-    }
-
-    public function createRandomUser()
-    {
-        User::create([
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
-            'password' => Hash::make('password'),
-            'remember_token' => Str::random(10),
-        ]);
-        session()->flash("success", "User has been created");
-    }
-
-    public function clearUser()
-    {
-        User::truncate();
-    }
-
-    public function deleteUser(User $user)
-    {
-        $user->delete();
-        if($user->avatar){
-            Storage::disk("public")->delete($user->avatar);
-        }
-    }
-
-    public function resetPreviewAvatar(){
-        $this->reset(["avatar"]);
-    }
-
-    #[Computed]
+    // sahrusnya kalau misalnya nama viewnya sama dengan nama classnya gaperlu panggil rander lagi
     public function render()
     {
-        return view('livewire.users',[
-            "users" => User::latest()->where("name", "like", "%{$this->query}%")->paginate(6),
-        ]);
+        return view('livewire.users');
     }
 }

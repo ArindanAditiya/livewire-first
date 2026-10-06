@@ -12,6 +12,9 @@
         @livewireStyles
     </head>
     <body>
+        {{-- navbar --}}
+        <x-navbar />
+
         {{ $slot }}
 
         @livewireScripts
