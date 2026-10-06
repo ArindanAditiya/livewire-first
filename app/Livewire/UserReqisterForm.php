@@ -1,25 +1,19 @@
 <?php
 
-namespace App\Livewire; 
+namespace App\Livewire;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Livewire\Attributes\Computed;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Livewire\WithFileUploads;
-use Livewire\WithoutUrlPagination;
-use Livewire\WithPagination;
 
-class Users extends Component
+class UserReqisterForm extends Component
 {
-    public $query = "";
+    use WithFileUploads;
 
-    use WithFileUploads, WithPagination, WithoutUrlPagination;
-
-    // validasi cara baru
+     // validasi cara baru
     #[Validate("required|min:3")]
     public $name = "";
     #[Validate("required|email:dns|unique:users,email")]
@@ -29,7 +23,6 @@ class Users extends Component
     #[Validate("image|max:5000")]
     public $avatar = "";
 
-    
     public function addNewUser()
     {
         // lanjutan dari cara baru
@@ -53,15 +46,8 @@ class Users extends Component
         $this->reset();
 
         session()->flash("success", "User has been created");
-    }
 
-    public function updatedQuery()
-    {
-        $this->resetPage();
-        }
-        
-    public function searchUser(){
-        $this->resetPage();
+        $this->dispatch("created-users");
     }
 
     public function createRandomUser()
@@ -74,30 +60,21 @@ class Users extends Component
             'remember_token' => Str::random(10),
         ]);
         session()->flash("success", "User has been created");
-    }
-
+        $this->dispatch("created-users");
+        }
+        
     public function clearUser()
     {
         User::truncate();
-    }
-
-    public function deleteUser(User $user)
-    {
-        $user->delete();
-        if($user->avatar){
-            Storage::disk("public")->delete($user->avatar);
-        }
+        $this->dispatch("created-users");
     }
 
     public function resetPreviewAvatar(){
         $this->reset(["avatar"]);
     }
 
-    #[Computed]
     public function render()
     {
-        return view('livewire.users',[
-            "users" => User::latest()->where("name", "like", "%{$this->query}%")->paginate(6),
-        ]);
+        return view('livewire.user-reqister-form');
     }
 }
