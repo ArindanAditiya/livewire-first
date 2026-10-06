@@ -33,6 +33,11 @@ class UserList extends Component
         }
     }
 
+     public function placeholder()
+    {
+        return view("livewire.placeholders.userslist-skeleton");
+    }
+
     public function render()
     {
         return view('livewire.user-list',[

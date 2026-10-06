@@ -1,4 +1,4 @@
-<div class="bg-white border border-gray-200 rounded-xl p-5 md:p-6 shadow-sm w-full lg:w-1/2">
+<div wire:poll.keep-alive class="bg-white border border-gray-200 rounded-xl p-5 md:p-6 shadow-sm w-full lg:w-1/2">
 
             {{-- HEADER --}}
             <div>

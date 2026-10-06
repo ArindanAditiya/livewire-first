@@ -73,6 +73,12 @@ class UserReqisterForm extends Component
         $this->reset(["avatar"]);
     }
 
+     public function placeholder()
+    {
+        return view("livewire.placeholders.user-register-placeholder");
+    }
+
+
     public function render()
     {
         return view('livewire.user-reqister-form');
