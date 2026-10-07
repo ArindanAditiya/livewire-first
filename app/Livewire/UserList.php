@@ -39,7 +39,12 @@ class UserList extends Component
         return view("livewire.placeholders.userslist-skeleton");
     }
 
+<<<<<<< HEAD
     #[Computed]
+=======
+
+     #[Computed]
+>>>>>>> 69717af5b3214d6431a9a41ada37c152abe1da9e
     public function users()
     {
         return User::latest()->where("name", "like", "%{$this->query}%")->paginate(6);
